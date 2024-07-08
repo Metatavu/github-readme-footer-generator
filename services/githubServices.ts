@@ -4,7 +4,6 @@ import { Repository } from "../types/types";
 const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
 
-
 /**
  * Gets the specified branch reference.
  * @param {Repository} params - The owner and repository name.
