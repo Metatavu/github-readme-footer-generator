@@ -64,4 +64,4 @@ If changes are made to the README (and differ from original), the script creates
 Successful pull requests are automatically merged into the develop branch.
 
 ## Bugs
-- Script will always create the update-readme repository regardless is it needed or pull request is created.
+- Script will always create the readme updater branch regardless is it needed or pull request is created.
