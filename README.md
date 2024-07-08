@@ -1,4 +1,4 @@
-## Github Readme Footer Generator
+# Github Readme Footer Generator
 
 This script is used to generate custom footer component under public repositories of organization. The script can detect presense of previosly added footer components and user is promted to either overwrite or skip these repositories, so the script SHOULD be safe to run multiple times.
 
@@ -12,6 +12,14 @@ Unexpected behavior may occur if the affected repository changes mid execution o
 - Pull requests **Read and Write**
 
 to the repositories wanted to be updated.
+
+### .env's to configure
+- *GITHUB_TOKEN = used for authorization
+- *ORG = used for fetching all public repositories of said organization 
+- *UPDATE_BRANCH_NAME = name for the to-be created updater branch where pull requests and merges are done from (should not be manually used branch) 
+- OVERRIDE_REPOS = JSON array of repository objects as string, if set they will be used as the selected repositories instead. Format of: '[{"owner":"value1","repository":"value2"},...]'
+
+\* = necessary 
 
 --- 
 Cloning Repository, Installing Dependencies, and Running Node.js Script
@@ -33,22 +41,27 @@ Cloning Repository, Installing Dependencies, and Running Node.js Script
 
 4. run script with command:
 ```
-node index.js
+  npm start
 ```
 
 ## Scripts workflow
 
-1. Branch Management:<br/>
+### 1. Initial settings
+**Repository Selection:** The script will first prompt the user to decide whether to update all fetched repositories at once. If the user chooses 'y' (yes), the script will proceed without further confirmations. If the user chooses 'n' (no), the script will prompt the user individually for each repository, asking whether to update or skip it.
+
+**Footer Overwrite Handling:** The script will then ask the user if they want to automatically overwrite custom footers found in the selected repositories. This setting only affects how the script handles existing footers in the selected repositories. If set to 'y' (yes), the script will overwrite any existing custom footers without further prompts. If set to 'n' (no), the script will prompt the user for confirmation each time a custom footer is found.
+
+### 2. Branch Management:<br/>
 The script ensures the update-readme branch is current by deleting it if it exists and recreating it from the latest develop branch.
 
-2. README Update:<br/>
+### 3. README Update:<br/>
 It checks each repository for a existing custom footer in the README file. If detected and not set to overwrite all, it prompts the user for confirmation.
 
-3. Pull Request Creation:<br/>
+### 4. Pull Request Creation:<br/>
 If changes are made to the README (and differ from original), the script creates a pull request from the update-readme branch to develop.
 
-4. Automated Merging:<br/>
+### 5. Automated Merging:<br/>
 Successful pull requests are automatically merged into the develop branch.
 
 ## Bugs
-- Script will always create the update-readme repository regardless is it needed or pull request created.
+- Script will always create the update-readme repository regardless is it needed or pull request is created.
