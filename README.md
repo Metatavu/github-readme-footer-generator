@@ -5,24 +5,7 @@ This script is used to generate custom footer component under public repositorie
 Unexpected behavior may occur if the affected repository changes mid execution of the script.
 
 ## How to use
-
-.env file should be created with "GITHUB_TOKEN" that is fine grained github token with permissions to:
-
-- Contents **Read and Write**
-- Pull requests **Read and Write**
-
-to the repositories wanted to be updated.
-
-### .env's to configure
-- *GITHUB_TOKEN = used for authorization
-- *ORG = used for fetching all public repositories of said organization 
-- *UPDATE_BRANCH_NAME = name for the to-be created updater branch where pull requests and merges are done from (should not be manually used branch) 
-- OVERRIDE_REPOS = JSON array of repository objects as string, if set they will be used as the selected repositories instead. Format of: '[{"owner":"value1","repository":"value2"},...]'
-
-\* = necessary 
-
---- 
-Cloning Repository, Installing Dependencies, and Running Node.js Script
+### Cloning Repository, Installing Dependencies, and Running Node.js Script
 
 1. Clone the repository using the following command:
 ```
@@ -43,6 +26,23 @@ Cloning Repository, Installing Dependencies, and Running Node.js Script
 ```
   npm start
 ```
+
+### .env's to configure
+.env should have the following properties:
+
+- *GITHUB_TOKEN = used for authorization
+- *ORG = used for fetching all public repositories of said organization 
+- *UPDATE_BRANCH_NAME = name for the to-be created updater branch where pull requests and merges are done from (should not be manually used branch) 
+- OVERRIDE_REPOS = JSON array of repository objects as string, if set they will be used as the selected repositories instead. Format of: '[{"owner":"value1","repository":"value2"},...]'
+  
+\* = necessary 
+
+### Token
+The "GITHUB_TOKEN" should be fine grained github token with permissions to:
+- Contents **Read and Write**
+- Pull requests **Read and Write**
+  
+to the repositories wanted to be updated.
 
 ## Scripts workflow
 
