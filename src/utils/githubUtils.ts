@@ -41,8 +41,8 @@ const deleteBranchIfExists = async (repositoryOBJ: Repository, branchName: strin
     if (error.status === 404) {
       console.log("Branch", logCyan(branchName), "does not exist in repository", logPurple(repoName), "Proceeding...");
     } else {
-      console.error("Error deleting branch:", error);
-      throw error;
+      console.error("Error deleting branch");
+      throw new Error(error)
     }
   }
 };
@@ -176,8 +176,11 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
 
     await mergePullRequest(repositoryOBJ, pullRequest.number);
     console.log("Pull request:", pullRequest.number, "was auto merged");
-  } catch (error) {
-    console.error("Error in updateReadmeAndAutoMerge:", error);
+  } catch (error: any) {
+    if (error.status !== 404) {
+      console.error("Error in updateReadmeAndAutoMerge");
+      throw new Error(error)
+    }
   }
 };
 

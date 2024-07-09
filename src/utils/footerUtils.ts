@@ -11,7 +11,7 @@ const promptSync = prompt();
  */
 export const checkForExistingFooter = (content: string): boolean => {
   const dom = parse(content);
-  const existingFooter = dom.querySelector("#metWatavu-custom-footer");
+  const existingFooter = dom.querySelector("#metatavu-custom-footer");
   return !!existingFooter;
 };
 
