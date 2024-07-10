@@ -23,7 +23,8 @@ async function main(): Promise<void> {
 
     let repositoriesOBJ: Repository[];
 
-    //Use overide repositories from env or fetch organizations repositories from github
+    //Can be used to set repositories manually or for testing. OVERRIDE_REPOS env should be JSON object as string: '[{"owner":"value1","repository":"value2"},...]'
+    //Either uses env overideRepositories if set or fetch organizations all public repositories
     if (overideRepositoriesJSON) {
       const overrideRepositoriesOBJ = JSON.parse(overideRepositoriesJSON);
       repositoriesOBJ = overrideRepositoriesOBJ;
