@@ -17,12 +17,17 @@ Unexpected behavior may occur if the affected repository changes mid execution o
   cd github-readme-footer-generator
 ```
 
-3. run npm install to get dependencies with command:
+3. Set Node.js version
+```
+  nvm use
+```
+
+4. run npm install to get dependencies with command:
 ```
   npm install
 ```
 
-4. run script with command:
+5. run script with command:
 ```
   npm start
 ```
