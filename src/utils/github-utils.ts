@@ -14,18 +14,23 @@ import {
   updateRef,
   createPullRequest,
   mergePullRequest
-} from "../services/githubServices";
-import { encodeToBase64, decodeBase64Content, logRed, logCyan, logPurple } from "./utils";
-import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footerUtils";
-import { Repository } from "../types/types";
+} from "../services/github-services";
+import { encodeToBase64, decodeBase64Content, logRed, logCyan, logPurple, logGreen, logOrange } from "./utils";
+import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
+import { Repository, RepositoryStatus } from "../types/types";
 
 config();
 const updateBranchName = process.env.UPDATE_BRANCH_NAME;
 const promptSync = prompt();
 
+const repositoryStatuses: RepositoryStatus[] = [];
+
 /**
  * Deletes a branch in a repository if it exists otherwise logs that no branch was found.
- * @param repositoryOBJ - An object containing repository details (owner and repository name).
+ * 
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param branchName - The name of the branch to delete.
  * @returns A Promise that resolves with void.
  * @throws Throws an error if there's an issue deleting the branch.
@@ -49,10 +54,12 @@ const deleteBranchIfExists = async (repositoryOBJ: Repository, branchName: strin
 
 /**
  * Creates a new branch from the latest commit on the 'develop' branch.
- * @param repositoryOBJ - An object containing repository details (owner and repository name).
+ * 
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param branchName - The name of the new branch to create.
  * @returns A Promise that resolves with an object indicating if 'develop' branch exists.
- * @throws Throws an error if there's an issue creating the branch.
  */
 const createBranchFromDevelop = async (repositoryOBJ: Repository, branchName: string): Promise<{ hasDevelop: boolean }> => {
   const repoName = repositoryOBJ.repository
@@ -75,25 +82,29 @@ const createBranchFromDevelop = async (repositoryOBJ: Repository, branchName: st
 
 /**
  * Update the README file of a repository with a custom footer.
- * @param repositoryOBJ - An object containing repository details (owner and repository name).
+ * 
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param branchName - The name of the branch to update.
  * @param footer - The custom footer to add or overwrite in the README.
  * @param overwriteExistingFooter - Whether to overwrite an existing footer.
- * @returns A promise resolving to an object indicating if the update was successful.
+ * @returns A promise resolving to an object indicating if the readme was updated.
  */
 const updateReadme = async (repositoryOBJ: Repository, branchName: string, footer: string, overwriteExistingFooter: boolean): Promise<{ updated: boolean }> => {
-  const owner = repositoryOBJ.owner;
   const repoName = repositoryOBJ.repository;
 
-  const fetchedReadmeResponse = await fetchReadme(repositoryOBJ);
-  if (!fetchedReadmeResponse) {
-    return { updated: false };
+  var fetchedReadmeResponse;
+  try {
+    fetchedReadmeResponse = await fetchReadme(repositoryOBJ);
+  } catch {
+    console.error(logRed(`README was not found in repository: ${logPurple(repoName)}`))
   }
 
   const base64fetchedReadme = fetchedReadmeResponse.data as { content: string, sha: string };
   const originalReadmeContent = decodeBase64Content(base64fetchedReadme.content);
 
-  if (!shouldOverwriteFooter(originalReadmeContent, overwriteExistingFooter, owner, repoName)) {
+  if (!shouldOverwriteFooter(repositoryOBJ, originalReadmeContent, overwriteExistingFooter)) {
     return { updated: false };
   }
   const updatedContent = createOrOverwriteFooter(originalReadmeContent, footer, true, repoName);
@@ -110,7 +121,10 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
 
 /**
  * Create a new blob, tree, commit, and update the branch reference.
- * @param repositoryOBJ - An object containing repository details (owner and repository name).
+ * 
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param branchName - The name of the branch to update.
  * @param base64UpdatedContent - The updated content encoded in base64.
  * @returns A boolean indicating if the update was successful.
@@ -144,7 +158,9 @@ async function createAndCommit(repositoriesOBJ: Repository, branchName: string, 
 /**
  * Updates the README file of a repository, creates a branch, makes a pull request, and auto-merges it.
  * 
- * @param repositoryOBJ - An object containing the repository owner and name.
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param footer - The footer content to be added or updated in the README.
  * @param overwriteExistingFooter - A boolean indicating whether to overwrite an existing custom footer.
  */
@@ -160,13 +176,15 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
 
     const { hasDevelop } = await createBranchFromDevelop(repositoryOBJ, updateBranch);
     if (!hasDevelop) {
-      console.log("No changes made to", logPurple(`${owner}/${repoName}`), "Develop branch not found or latest commit information missing.");
+      console.log(`No changes made to ${logPurple(`${repositoryOBJ.owner}/${repositoryOBJ.repository}`)}. Develop branch not found or latest commit information missing.`);
+      repositoryStatuses.push({ ...repositoryOBJ, status: 'failed', message: 'Develop branch not found or latest commit information missing' });
       return;
     }
 
     const { updated } = await updateReadme(repositoryOBJ, updateBranch, footer, overwriteExistingFooter);
     if (!updated) {
       console.log("No changes made to", logPurple(`${owner}/${repoName}`), "skipping pull request creation.");
+      repositoryStatuses.push({ ...repositoryOBJ, status: 'skipped', message: 'No changes needed' });
       return;
     }
 
@@ -176,18 +194,19 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
 
     await mergePullRequest(repositoryOBJ, pullRequest.number);
     console.log("Pull request:", pullRequest.number, "was auto merged");
+
+    repositoryStatuses.push({ ...repositoryOBJ, status: 'successful', message: 'Changes were successful' });
   } catch (error: any) {
-    if (error.status !== 404) {
-      console.error("Error in updateReadmeAndAutoMerge");
-      throw new Error(error)
-    }
+    repositoryStatuses.push({ ...repositoryOBJ, status: 'failed', message: 'Error in updating repository' });
   }
 };
 
 /**
  * Updates the README and auto merges for all specified repositories.
  * 
- * @param repositoriesOBJ - Array of repository objects to update.
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  * @param footer - The footer content to add or update in the README.
  */
 export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repository[], footer: string) => {
@@ -213,6 +232,7 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
     if (!processAll) {
       const perRepoAnswer = promptSync(logRed(`Do you want to process repository: ${logPurple(repositoryOBJ.repository)}? (y/N): `));
       if (perRepoAnswer?.toLowerCase() !== "y") {
+        repositoryStatuses.push({ ...repositoryOBJ, status: 'skipped', message: 'Changes were skipped by user' });
         console.log(`Skipping repository ${logPurple(repositoryOBJ.repository)}.`);
         continue;
       }
@@ -220,12 +240,16 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
 
     await updateReadmeAndAutoMerge(repositoryOBJ, footer, overwriteAll);
   }
+
+  displaySummary(repositoryStatuses);
 };
 
 /**
  * Displays a list of selected repositories in the console.
  *
- * @param {Repository[]} repositories - An array of repository objects.
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
  */
 export const displaySelectedRepositories = (repositoriesOBJ: Repository[]) => {
   console.log("---------Selected Repositories---------");
@@ -234,4 +258,28 @@ export const displaySelectedRepositories = (repositoriesOBJ: Repository[]) => {
     console.log(i, ": ", "Owner:", repo.owner, "Repository:", logPurple(repo.repository));
   }
   console.log("---------------------------------------");
+}
+
+/**
+ * Displays a summary of repository statuses in the console.
+ *
+ * @param repositoryStatuses - An array of objects representing repository statuses including owner, repository, status, and message.
+ */
+const displaySummary = (repositoryStatuses: { owner: string; repository: string; status: string; message: string }[]) => {
+  console.log("\nSummary:");
+  repositoryStatuses.forEach(repoStatus => {
+    switch (repoStatus.status) {
+      case 'skipped':
+        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logOrange(repoStatus.status)} - ${repoStatus.message}`);
+        break;
+      case 'successful':
+        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logGreen(repoStatus.status)} - ${repoStatus.message}`);
+        break;
+      case 'failed':
+        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logRed(repoStatus.status)} - ${repoStatus.message}`);
+        break;
+      default:
+        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${repoStatus.message}`);
+    }
+  });
 };

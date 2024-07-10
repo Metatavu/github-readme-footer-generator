@@ -1,7 +1,7 @@
 import { config } from "dotenv";
-import { getOrganizationRepositories } from "./utils/githubOrganizationUtils";
-import { displaySelectedRepositories, updateReadmeAndAutoMergeRepositories as updateRepositoriesReadmesAndPullMerge } from "./utils/githubUtils";
-import { footer } from "./customFooter";
+import { getOrganizationRepositories } from "./utils/github-organizationUtils";
+import { displaySelectedRepositories, updateReadmeAndAutoMergeRepositories as updateRepositoriesReadmesAndPullMerge } from "./utils/github-utils";
+import { footer } from "./custom-footer";
 import { logRed } from "./utils/utils";
 
 config();
@@ -10,6 +10,14 @@ const organization: string | undefined = process.env.ORG;
 const updateBranchName: string | undefined = process.env.UPDATE_BRANCH_NAME;
 const overideRepositoriesJSON = process.env.OVERRIDE_REPOS;
 
+/**
+ * Main function that coordinates the script to update README files, create pull requests, and auto-merge them.
+ * 
+ * The function checks for required environment variables, handles override repositories if provided,
+ * or fetches all public repositories of the specified organization.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the script completes.
+ */
 async function main(): Promise<void> {
   if (!TOKEN) {
     console.error(logRed("GitHub token is not defined. Please set the GITHUB_TOKEN environment variable."));

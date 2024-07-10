@@ -6,6 +6,13 @@ config();
 const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
 
+/**
+ * Fetches all public repositories belonging to the specified organization from GitHub.
+ * 
+ * @param org - The name of the organization.
+ * @returns A Promise that resolves to an array of Repository objects.
+ * @throws If there is an error fetching repositories from GitHub.
+ */
 export async function getOrganizationRepositories(org: string): Promise<Repository[]> {
   try {
     const response = await octokit.request("GET /orgs/{org}/repos", {

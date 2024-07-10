@@ -47,3 +47,23 @@ export const logCyan = (text: string): string => {
 export const logRed = (text: string): string => {
   return `\x1b[31m${text}\x1b[0m`;
 };
+
+/**
+ * Wraps a string in green color.
+ * 
+ * @param text - The text to color.
+ * @returns The text wrapped in green color codes.
+ */
+export const logGreen = (text: string): string => {
+  return `\x1b[32m${text}\x1b[0m`;
+};
+
+/**
+ * Wraps a string in orange color.
+ * 
+ * @param text - The text to color.
+ * @returns The text wrapped in orange color codes.
+ */
+export const logOrange = (text: string): string => {
+  return `\x1b[38;5;214m${text}\x1b[0m`;
+};

@@ -6,9 +6,12 @@ const octokit = new Octokit({ auth: TOKEN });
 
 /**
  * Gets the specified branch reference.
- * @param {Repository} params - The owner and repository name.
- * @param {string} branchName - The name of the branch.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - The owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param branchName - The name of the branch.
+ * @returns The response from the GitHub API.
  */
 export const getBranch = async ({ owner, repository }: Repository, branchName: string): Promise<any> => {
   return await octokit.request(`GET /repos/${owner}/${repository}/git/ref/heads/${branchName}`);
@@ -16,9 +19,12 @@ export const getBranch = async ({ owner, repository }: Repository, branchName: s
 
 /**
  * Deletes the specified branch.
- * @param {Repository} params - The owner and repository name.
- * @param {string} branchName - The name of the branch.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - The owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param branchName - The name of the branch.
+ * @returns The response from the GitHub API.
  */
 export const deleteBranch = async ({ owner, repository }: Repository, branchName: string): Promise<any> => {
   return await octokit.request(`DELETE /repos/${owner}/${repository}/git/refs/heads/${branchName}`);
@@ -26,9 +32,12 @@ export const deleteBranch = async ({ owner, repository }: Repository, branchName
 
 /**
  * Gets the latest commit reference for the specified branch.
- * @param {Repository} params - The owner and repository name.
- * @param {string} ref - The branch reference.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - The owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param branchName - The name of the branch.
+ * @returns The response from the GitHub API.
  */
 export const getLatestCommit = async ({ owner, repository }: Repository, ref: string): Promise<any> => {
   return await octokit.request("GET /repos/{owner}/{repository}/git/ref/heads/{ref}", {
@@ -40,10 +49,13 @@ export const getLatestCommit = async ({ owner, repository }: Repository, ref: st
 
 /**
  * Creates a new branch from the specified commit SHA.
- * @param {Repository} params - The owner and repository name.
- * @param {string} branchName - The name of the new branch.
- * @param {string} sha - The commit SHA to create the branch from.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - The owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param branchName - The name of the branch.
+ * @param sha - The commit SHA to create the branch from.
+ * @returns The response from the GitHub API.
  */
 export const createBranch = async ({ owner, repository }: Repository, branchName: string, sha: string): Promise<any> => {
   return await octokit.request("POST /repos/{owner}/{repository}/git/refs", {
@@ -56,8 +68,11 @@ export const createBranch = async ({ owner, repository }: Repository, branchName
 
 /**
  * Fetches the README file from the repositoryes develop branch.
- * @param {Repository} params - The owner and repository name.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - The owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @returns The response from the GitHub API.
  */
 export const fetchReadme = async ({ owner, repository }: Repository): Promise<any> => {
   return await octokit.request("GET /repos/{owner}/{repository}/contents/{path}", {
@@ -70,9 +85,12 @@ export const fetchReadme = async ({ owner, repository }: Repository): Promise<an
 
 /**
  * Creates a new blob with the specified content.
- * @param {Repository} params - The owner and repository name.
- * @param {string} content - The content of the blob.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param content - The content of the blob to be created, encoded in base64.
+ * @returns The response from the GitHub API.
  */
 export const createBlob = async ({ owner, repository }: Repository, content: string): Promise<any> => {
   return await octokit.request("POST /repos/{owner}/{repository}/git/blobs", {
@@ -84,10 +102,13 @@ export const createBlob = async ({ owner, repository }: Repository, content: str
 };
 
 /**
- * Gets the commit reference for the specified branch.
- * @param {Repository} params - The owner and repository name.
- * @param {string} ref - The branch reference.
- * @returns {Promise<any>} The response from the GitHub API.
+ * Fetches the commit reference for the specified branch.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param ref - The branch reference.
+ * @returns The response from the GitHub API.
  */
 export const getCommitRef = async ({ owner, repository }: Repository, ref: string): Promise<any> => {
   return await octokit.request("GET /repos/{owner}/{repository}/git/ref/{ref}", {
@@ -98,10 +119,13 @@ export const getCommitRef = async ({ owner, repository }: Repository, ref: strin
 };
 
 /**
- * Gets the base tree for the specified commit SHA.
- * @param {Repository} params - The owner and repository name.
- * @param {string} tree_sha - The commit SHA.
- * @returns {Promise<any>} The response from the GitHub API.
+ * Fetches the base tree for the specified commit SHA.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param tree_sha - The commit SHA.
+ * @returns The response from the GitHub API.
  */
 export const getBaseTree = async ({ owner, repository }: Repository, tree_sha: string): Promise<any> => {
   return await octokit.request("GET /repos/{owner}/{repository}/git/trees/{tree_sha}", {
@@ -113,11 +137,14 @@ export const getBaseTree = async ({ owner, repository }: Repository, tree_sha: s
 
 /**
  * Creates a new tree with the specified base tree, path, and SHA.
- * @param {Repository} params - The owner and repository name.
- * @param {string} base_tree - The base tree SHA.
- * @param {string} path - The path for the new tree.
- * @param {string} sha - The SHA for the new tree.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param base_tree - The base tree SHA.
+ * @param path - The path for the new tree.
+ * @param sha - The SHA for the new tree.
+ * @returns The response from the GitHub API.
  */
 export const createTree = async ({ owner, repository }: Repository, base_tree: string, sha: string): Promise<any> => {
   return await octokit.request("POST /repos/{owner}/{repository}/git/trees", {
@@ -135,11 +162,14 @@ export const createTree = async ({ owner, repository }: Repository, base_tree: s
 
 /**
  * Creates a new commit with the specified message, tree, and parents.
- * @param {Repository} params - The owner and repository name.
- * @param {string} message - The commit message.
- * @param {string} tree - The tree SHA.
- * @param {string[]} parents - The parent SHAs.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param message - The commit message.
+ * @param tree - The tree SHA.
+ * @param parents - The parent SHAs.
+ * @returns The response from the GitHub API.
  */
 export const createCommit = async ({ owner, repository }: Repository, message: string, tree: string, parents: string[]): Promise<any> => {
   return await octokit.request("POST /repos/{owner}/{repository}/git/commits", {
@@ -153,10 +183,13 @@ export const createCommit = async ({ owner, repository }: Repository, message: s
 
 /**
  * Updates the reference to point to the specified SHA.
- * @param {Repository} params - The owner and repository name.
- * @param {string} ref - The reference to update.
- * @param {string} sha - The SHA to point the reference to.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param ref - The reference to update.
+ * @param sha - The SHA to point the reference to.
+ * @returns The response from the GitHub API.
  */
 export const updateRef = async ({ owner, repository }: Repository, ref: string, sha: string): Promise<any> => {
   return await octokit.request("PATCH /repos/{owner}/{repository}/git/refs/{ref}", {
@@ -169,12 +202,15 @@ export const updateRef = async ({ owner, repository }: Repository, ref: string, 
 
 /**
  * Creates a new pull request with the specified details.
- * @param {Repository} params - The owner and repository name.
- * @param {string} title - The title of the pull request.
- * @param {string} head - The name of the branch where changes are implemented.
- * @param {string} base - The name of the branch you want the changes pulled into.
- * @param {string} body - The body text of the pull request.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param title - The title of the pull request.
+ * @param head - The name of the branch where changes are implemented.
+ * @param base - The name of the branch you want the changes pulled into.
+ * @param body - The body text of the pull request.
+ * @returns The response from the GitHub API.
  */
 export const createPullRequest = async ({ owner, repository }: Repository, title: string, head: string, base: string, body: string): Promise<any> => {
   return await octokit.request("POST /repos/{owner}/{repository}/pulls", {
@@ -189,9 +225,12 @@ export const createPullRequest = async ({ owner, repository }: Repository, title
 
 /**
  * Merges the specified pull request.
- * @param {Repository} params - The owner and repository name.
- * @param {number} pullNumber - The number of the pull request.
- * @returns {Promise<any>} The response from the GitHub API.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @param pullNumber - The number of the pull request.
+ * @returns The response from the GitHub API.
  */
 export const mergePullRequest = async ({ owner, repository }: Repository, pullNumber: number): Promise<any> => {
   return await octokit.request("PUT /repos/{owner}/{repository}/pulls/{pull_number}/merge", {
