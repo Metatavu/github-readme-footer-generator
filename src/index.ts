@@ -13,9 +13,9 @@ const overideRepositoriesJSON = process.env.OVERRIDE_REPOS;
 
 /**
  * Main function that coordinates the script to update README files, create pull requests, and auto-merge them.
- * 
  * The function checks for required environment variables, handles override repositories if provided,
  * or fetches all public repositories of the specified organization.
+ * 
  */
 async function main(): Promise<void> {
   try {
