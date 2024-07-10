@@ -2,7 +2,8 @@ import { config } from "dotenv";
 import { getOrganizationRepositories } from "./utils/github-organizationUtils";
 import { displaySelectedRepositories, updateReadmeAndAutoMergeRepositories as updateRepositoriesReadmesAndPullMerge } from "./utils/github-utils";
 import { footer } from "./custom-footer";
-import { logRed } from "./utils/utils";
+import { isValidRepositories, logRed } from "./utils/utils";
+import { Repository } from "./types/types";
 
 config();
 const TOKEN: string | undefined = process.env.GITHUB_TOKEN;
@@ -15,42 +16,53 @@ const overideRepositoriesJSON = process.env.OVERRIDE_REPOS;
  * 
  * The function checks for required environment variables, handles override repositories if provided,
  * or fetches all public repositories of the specified organization.
- * 
- * @returns {Promise<void>} A promise that resolves when the script completes.
  */
 async function main(): Promise<void> {
+  try {
+    checkEnvironmentVariables();
+
+    let repositoriesOBJ: Repository[];
+
+    //Use overide repositories from env or fetch organizations repositories from github
+    if (overideRepositoriesJSON) {
+      const overrideRepositoriesOBJ = JSON.parse(overideRepositoriesJSON);
+      repositoriesOBJ = overrideRepositoriesOBJ;
+    } else {
+      repositoriesOBJ = await getOrganizationRepositories(organization!);
+    }
+
+    if (!isValidRepositories(repositoriesOBJ)) {
+      console.log(logRed("Empty or invalid array of repositories. Aborting..."));
+      return;
+    }
+
+    displaySelectedRepositories(repositoriesOBJ);
+    await updateRepositoriesReadmesAndPullMerge(repositoriesOBJ, footer);
+
+  } catch (error) {
+    console.error("Error in main function:", error);
+  }
+}
+
+/**
+ * Checks the required environment variables and throws errors if any are missing.
+ * 
+ * @throws Throws an error if any required environment variable is missing.
+ */
+function checkEnvironmentVariables(): void {
   if (!TOKEN) {
-    console.error(logRed("GitHub token is not defined. Please set the GITHUB_TOKEN environment variable."));
-    return;
+    throw new Error(logRed("GitHub token is not defined. Please set the GITHUB_TOKEN environment variable."));
   }
   if (!organization) {
-    console.error(logRed("Organization name is not defined. Please set the ORG environment variable."));
-    return;
+    throw new Error(logRed("Organization name is not defined. Please set the ORG environment variable."));
   }
   if (!updateBranchName) {
-    console.error(logRed("Name for Updater branch that is used to make pullrequest from is not defined (Should not be important or manually used branch, it will get deleted and re-created). Please set the updateBranchName environment variable."));
-    return;
+    throw new Error(logRed("Name for Updater branch that is used to make pull request from is not defined. Please set the updateBranchName environment variable."));
   }
   if (overideRepositoriesJSON) {
-    console.log(logRed("Override repositories are set in the env and they will be used. \n"));
+    console.log(logRed("Override repositories are set in the env and they will be used.\n"));
   }
-
-  //Can be used to set repositories manually or for testing. OVERRIDE_REPOS env should be JSON object as string: '[{"owner":"value1","repository":"value2"},...]'
-  //Either use env overideRepositories if set or fetch organizations all public repositories
-  if (overideRepositoriesJSON) {
-    const overrideRepositoriesOBJ = JSON.parse(overideRepositoriesJSON);
-    displaySelectedRepositories(overrideRepositoriesOBJ);
-    await updateRepositoriesReadmesAndPullMerge(overrideRepositoriesOBJ, footer);
-    return;
-  }
-
-  // Fetch organizations all public repositories
-  const repositoriesOBJ = await getOrganizationRepositories(organization);
-  displaySelectedRepositories(repositoriesOBJ);
-  await updateRepositoriesReadmesAndPullMerge(repositoriesOBJ, footer);
-};
+}
 
 // Entry point
-main().catch(error => {
-  console.error("Error in main function:", error);
-});
+main();

@@ -1,3 +1,29 @@
+import { Repository } from "../types/types";
+
+/**
+ * Checks if an array of repository objects is valid.
+ * 
+ * @param repositoriesOBJ - The array of repository objects to validate.
+ * @returns Returns true if all repository objects are valid, otherwise false.
+ */
+export function isValidRepositories(repositoriesOBJ: Repository[]): boolean {
+  if (repositoriesOBJ.length === 0) {
+    return false;
+  }
+  // Check if every repository is valid
+  return repositoriesOBJ.every(repositoryOBJ => isValidRepository(repositoryOBJ));
+}
+
+/**
+ * Checks if a single repository object is valid.
+ * 
+ * @param repositoryOBJ - The repository object to validate.
+ * @returns Returns true if the repository object is valid, otherwise false.
+ */
+function isValidRepository(repositoryOBJ: Repository): boolean {
+  return !!repositoryOBJ && !!repositoryOBJ.owner && !!repositoryOBJ.repository;
+}
+
 /**
  * Encodes a string to Base64 format.
  * 
