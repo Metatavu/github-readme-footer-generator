@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { getOrganizationRepositories } from "./utils/github-organization-utils";
+import { getOrganizationPublicRepositories } from "./utils/github-organization-utils";
 import { displaySelectedRepositories, updateReadmeAndAutoMergeRepositories as updateRepositoriesReadmesAndPullMerge } from "./utils/github-utils";
 import { footer } from "./custom-footer";
 import { isValidRepositories, logRed } from "./utils/utils";
@@ -33,7 +33,7 @@ async function main(): Promise<void> {
     } else if ((loadedFromFile = promptAndLoadFailedRepositories())) {
       repositoriesOBJ = loadedFromFile;
     } else {
-      repositoriesOBJ = await getOrganizationRepositories(organization!);
+      repositoriesOBJ = await getOrganizationPublicRepositories(organization!);
     }
 
     if (!isValidRepositories(repositoriesOBJ)) {

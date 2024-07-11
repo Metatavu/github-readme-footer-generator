@@ -13,7 +13,7 @@ const octokit = new Octokit({ auth: TOKEN });
  * @returns A Promise that resolves to an array of Repository objects.
  * @throws If there is an error fetching repositories from GitHub.
  */
-export async function getOrganizationRepositories(org: string): Promise<Repository[]> {
+export async function getOrganizationPublicRepositories(org: string): Promise<Repository[]> {
   try {
     const response = await octokit.request("GET /orgs/{org}/repos", {
       org,
