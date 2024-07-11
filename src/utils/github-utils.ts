@@ -18,6 +18,7 @@ import {
 import { encodeToBase64, decodeBase64Content, logRed, logCyan, logPurple, logGreen, logOrange } from "./utils";
 import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
 import { Repository, RepositoryStatus } from "../types/types";
+import { promptAndSaveFailedRepositories } from "./failed-logger";
 
 config();
 const updateBranchName = process.env.UPDATE_BRANCH_NAME;
@@ -242,6 +243,7 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
   }
 
   displaySummary(repositoryStatuses);
+  promptAndSaveFailedRepositories(repositoryStatuses);
 };
 
 /**
@@ -279,7 +281,7 @@ const displaySummary = (repositoryStatuses: { owner: string; repository: string;
         console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logRed(repoStatus.status)} - ${repoStatus.message}`);
         break;
       default:
-        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${repoStatus.message}`);
+        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${repoStatus.status} - ${repoStatus.message}`);
     }
   });
 };
