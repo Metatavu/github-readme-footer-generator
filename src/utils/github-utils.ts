@@ -18,7 +18,7 @@ import {
 import { encodeToBase64, decodeBase64Content, logRed, logCyan, logPurple, logGreen, logOrange } from "./utils";
 import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
 import { Repository, RepositoryStatus } from "../types/types";
-import { promptAndSaveFailedRepositories } from "./failed-logger";
+import { promptAndSaveFailedRepositories } from "./repository-error-file-utils";
 
 config();
 const updateBranchName = process.env.UPDATE_BRANCH_NAME;

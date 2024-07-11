@@ -5,6 +5,12 @@ import { logGreen, logRed } from './utils';
 
 const promptSync = prompt();
 
+/**
+ * Saves an array of failed repositories to a JSON file.
+ *
+ * @param failedRepositories - An array of repositories that failed.
+ * @returns void
+ */
 export const saveFailedRepositoriesToFile = (failedRepositories: Repository[]): void => {
   const filePath = 'failed-repositories.json';
   const jsonContent = JSON.stringify(failedRepositories, null, 2);
@@ -13,6 +19,12 @@ export const saveFailedRepositoriesToFile = (failedRepositories: Repository[]): 
   console.log(`Failed repositories have been saved to ${filePath}`);
 };
 
+/**
+ * Prompts the user to save failed repositories to a file if there are any.
+ *
+ * @param repositoryStatuses - An array of repository statuses.
+ * @returns void
+ */
 export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositoryStatus[]): void => {
   const failedRepositories = repositoryStatuses
     .filter(repoStatus => repoStatus.status === 'failed')
@@ -23,13 +35,30 @@ export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositorySt
     const saveToFileAnswer = promptSync(logRed(`There was ${failedRepositories.length} failed repositories. Do you want to save them to a file as JSON? (y/N): `));
     const saveToFile = saveToFileAnswer?.toLowerCase() === "y";
     if (saveToFile) {
-      try{
+      try {
         saveFailedRepositoriesToFile(failedRepositories);
         console.log(logGreen("Saved to file"))
-      }catch{
+      } catch {
         console.log(logRed("Failed to save on file"))
       }
-      
+
     }
   }
+};
+
+/**
+ * Prompts the user to load failed repositories from a JSON file if the file exists.
+ *
+ * @returns An array of repositories if the file is loaded, otherwise null.
+ */
+export const promptAndLoadFailedRepositories = (): Repository[] | null => {
+  const filePath = 'failed-repositories.json';
+  if (fs.existsSync(filePath)) {
+    const loadAnswer = promptSync(logRed("Found failed-repositories.json Do you want to load the repositories to be used from this file? (y/N): "));
+    if (loadAnswer.toLowerCase() === 'y') {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(fileContent);
+    }
+  }
+  return null;
 };
