@@ -10,7 +10,7 @@ config();
 const TOKEN: string | undefined = process.env.GITHUB_TOKEN;
 const organization: string | undefined = process.env.ORG;
 const updateBranchName: string | undefined = process.env.UPDATE_BRANCH_NAME;
-const overideRepositoriesJSON = process.env.OVERRIDE_REPOS;
+const overideRepositoriesJSON: string | undefined = process.env.OVERRIDE_REPOS;
 
 /**
  * Main function that coordinates the script to update README files, create pull requests, and auto-merge them.
