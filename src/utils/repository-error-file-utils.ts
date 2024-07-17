@@ -1,7 +1,7 @@
 import fs from 'fs';
+import chalk from 'chalk';
 import prompt from "prompt-sync";
 import { Repository, RepositoryStatus } from '../types/types';
-import { logGreen, logRed } from './utils';
 
 const promptSync = prompt();
 
@@ -32,14 +32,14 @@ export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositorySt
 
   if (failedRepositories.length > 0) {
     console.log("")
-    const saveToFileAnswer = promptSync(logRed(`There was ${failedRepositories.length} failed repositories. Do you want to save them to a file as JSON? (y/N): `));
+    const saveToFileAnswer = promptSync(chalk.red(`There was ${failedRepositories.length} failed repositories. Do you want to save them to a file as JSON? (y/N): `));
     const saveToFile = saveToFileAnswer?.toLowerCase() === "y";
     if (saveToFile) {
       try {
         saveFailedRepositoriesToFile(failedRepositories);
-        console.log(logGreen("Saved to file"))
+        console.log(chalk.green("Saved to file"))
       } catch {
-        console.log(logRed("Failed to save on file"))
+        console.log(chalk.red("Failed to save on file"))
       }
 
     }
@@ -54,7 +54,7 @@ export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositorySt
 export const promptAndLoadFailedRepositories = (): Repository[] | null => {
   const filePath = 'failed-repositories.json';
   if (fs.existsSync(filePath)) {
-    const loadAnswer = promptSync(logRed("Found failed-repositories.json Do you want to load the repositories to be used from this file? (y/N): "));
+    const loadAnswer = promptSync(chalk.red("Found failed-repositories.json Do you want to load the repositories to be used from this file? (y/N): "));
     if (loadAnswer.toLowerCase() === 'y') {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(fileContent);

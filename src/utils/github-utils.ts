@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { config } from "dotenv";
 import prompt from "prompt-sync";
 import {
@@ -15,7 +16,7 @@ import {
   createPullRequest,
   mergePullRequest
 } from "../services/github-services";
-import { encodeToBase64, decodeBase64Content, logRed, logCyan, logPurple, logGreen, logOrange } from "./utils";
+import { encodeToBase64, decodeBase64Content } from "./utils";
 import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
 import { Repository, RepositoryStatus } from "../types/types";
 import { promptAndSaveFailedRepositories } from "./repository-error-file-utils";
@@ -40,13 +41,13 @@ const deleteBranchIfExists = async (repositoryOBJ: Repository, branchName: strin
   const repoName = repositoryOBJ.repository;
 
   if (!await isExistingBranch(repositoryOBJ, branchName)) {
-    console.log("Branch", logCyan(branchName), "does not exist in repository", logPurple(repoName), "Proceeding...");
+    console.log("Branch", chalk.cyan(branchName), "does not exist in repository", chalk.magenta(repoName), "Proceeding...");
     return;
   }
 
   try {
     await deleteBranch(repositoryOBJ, branchName);
-    console.log("Deleted existing branch:", logCyan(branchName), "in repository:", logPurple(repoName));
+    console.log("Deleted existing branch:", chalk.cyan(branchName), "in repository:", chalk.magenta(repoName));
   } catch (error: any) {
     console.error("Error deleting branch");
     throw new Error(error);
@@ -93,13 +94,13 @@ const createBranchFromDevelop = async (repositoryOBJ: Repository, branchName: st
   try {
     const latestCommit = await getLatestCommit(repositoryOBJ, hardCodedDevelopBranch);
     await createBranch(repositoryOBJ, branchName, latestCommit.data.object.sha);
-    console.log("Created branch:", logCyan(branchName), "from the latest develop commit for repository:", logPurple(repoName));
+    console.log("Created branch:", chalk.cyan(branchName), "from the latest develop commit for repository:", chalk.magenta(repoName));
     return { hasDevelop: true };
   } catch (error: any) {
     if (error.status === 404) {
-      console.log("Develop branch not found in repository:", logPurple(repoName));
+      console.log("Develop branch not found in repository:", chalk.magenta(repoName));
     } else {
-      console.error("Error creating branch from develop in repository:", logPurple(repoName), "Error:", error);
+      console.error("Error creating branch from develop in repository:", chalk.magenta(repoName), "Error:", error);
     }
     return { hasDevelop: false };
   }
@@ -123,7 +124,7 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
   try {
     fetchedReadmeResponse = await fetchReadme(repositoryOBJ);
   } catch {
-    console.error(logRed(`README was not found in repository: ${logPurple(repoName)}`))
+    console.error(chalk.red(`README was not found in repository: ${chalk.magenta(repoName)}`))
   }
 
   const base64fetchedReadme = fetchedReadmeResponse.data as { content: string, sha: string };
@@ -134,7 +135,7 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
   }
   const updatedContent = createOrOverwriteFooter(originalReadmeContent, footer, true, repoName);
   if (updatedContent === originalReadmeContent) {
-    console.log("Repository:", logPurple(repoName), "original data matched update, nothing was changed.");
+    console.log("Repository:", chalk.magenta(repoName), "original data matched update, nothing was changed.");
     return { updated: false };
   }
 
@@ -195,20 +196,20 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
   const repoName = repositoryOBJ.repository
   const hardCodedDevelopBranch = "develop"
 
-  console.log("Beginning work on repository:", logPurple(repoName), "with branch of:", logCyan(updateBranch));
+  console.log("Beginning work on repository:", chalk.magenta(repoName), "with branch of:", chalk.cyan(updateBranch));
   try {
     await deleteBranchIfExists(repositoryOBJ, updateBranch);
 
     const { hasDevelop } = await createBranchFromDevelop(repositoryOBJ, updateBranch);
     if (!hasDevelop) {
-      console.log(`No changes made to ${logPurple(`${repositoryOBJ.owner}/${repositoryOBJ.repository}`)}. Develop branch not found or latest commit information missing.`);
+      console.log(`No changes made to ${chalk.magenta(`${repositoryOBJ.owner}/${repositoryOBJ.repository}`)}. Develop branch not found or latest commit information missing.`);
       repositoryStatuses.push({ ...repositoryOBJ, status: 'failed', message: 'Develop branch not found or latest commit information missing' });
       return;
     }
 
     const { updated } = await updateReadme(repositoryOBJ, updateBranch, footer, overwriteExistingFooter);
     if (!updated) {
-      console.log("No changes made to", logPurple(`${owner}/${repoName}`), "skipping pull request creation.");
+      console.log("No changes made to", chalk.magenta(`${owner}/${repoName}`), "skipping pull request creation.");
       repositoryStatuses.push({ ...repositoryOBJ, status: 'skipped', message: 'No changes needed' });
       return;
     }
@@ -236,15 +237,15 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
  */
 export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repository[], footer: string) => {
   console.log("This script will add custom footers to ALL the specified repositories. It can also overwrite existing footers if desired.");
-  console.log(logRed("If you do not want to automatically update ALL of the repositories selected, YOU MUST select 'n' in the following prompt."));
-  const processAllAnswer = promptSync(logRed("Do you want to add custom footer to ALL found repositories? (otherwise will be asked individually) (y/N): "));
+  console.log(chalk.red("If you do not want to automatically update ALL of the repositories selected, YOU MUST select 'n' in the following prompt."));
+  const processAllAnswer = promptSync(chalk.red("Do you want to add custom footer to ALL found repositories? (otherwise will be asked individually) (y/N): "));
   const processAll = processAllAnswer?.toLowerCase() === "y";
 
   if (processAll) {
     console.log("All repositories will be processed.");
   }
 
-  const overwriteAnswer = promptSync(logRed("If found do you want to automatically overwrite ALL existing metatavu-custom-footers (otherwise will be asked individually) (y/N): "));
+  const overwriteAnswer = promptSync(chalk.red("If found do you want to automatically overwrite ALL existing metatavu-custom-footers (otherwise will be asked individually) (y/N): "));
   const overwriteAll = overwriteAnswer?.toLowerCase() === "y";
   if (overwriteAll) {
     console.log("All metatavu-custom-footers will be overwritten.");
@@ -255,10 +256,10 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
     console.log("\n", i);
 
     if (!processAll) {
-      const perRepoAnswer = promptSync(logRed(`Do you want to process repository: ${logPurple(repositoryOBJ.repository)}? (y/N): `));
+      const perRepoAnswer = promptSync(chalk.red(`Do you want to process repository: ${chalk.magenta(repositoryOBJ.repository)}? (y/N): `));
       if (perRepoAnswer?.toLowerCase() !== "y") {
         repositoryStatuses.push({ ...repositoryOBJ, status: 'skipped', message: 'Changes were skipped by user' });
-        console.log(`Skipping repository ${logPurple(repositoryOBJ.repository)}.`);
+        console.log(`Skipping repository ${chalk.magenta(repositoryOBJ.repository)}.`);
         continue;
       }
     }
@@ -281,7 +282,7 @@ export const displaySelectedRepositories = (repositoriesOBJ: Repository[]) => {
   console.log("---------Selected Repositories---------");
   for (let i = 0; i < repositoriesOBJ.length; i++) {
     const repo = repositoriesOBJ[i];
-    console.log(i, ": ", "Owner:", repo.owner, "Repository:", logPurple(repo.repository));
+    console.log(i, ": ", "Owner:", repo.owner, "Repository:", chalk.magenta(repo.repository));
   }
   console.log("---------------------------------------");
 }
@@ -296,16 +297,16 @@ const displaySummary = (repositoryStatuses: { owner: string; repository: string;
   repositoryStatuses.forEach(repoStatus => {
     switch (repoStatus.status) {
       case 'skipped':
-        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logOrange(repoStatus.status)} - ${repoStatus.message}`);
+        console.log(`- ${chalk.magenta(`${repoStatus.owner}/${repoStatus.repository}`)} - ${chalk.ansi256(214)(repoStatus.status)} - ${repoStatus.message}`);
         break;
       case 'successful':
-        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logGreen(repoStatus.status)} - ${repoStatus.message}`);
+        console.log(`- ${chalk.magenta(`${repoStatus.owner}/${repoStatus.repository}`)} - ${chalk.green(repoStatus.status)} - ${repoStatus.message}`);
         break;
       case 'failed':
-        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${logRed(repoStatus.status)} - ${repoStatus.message}`);
+        console.log(`- ${chalk.magenta(`${repoStatus.owner}/${repoStatus.repository}`)} - ${chalk.red(repoStatus.status)} - ${repoStatus.message}`);
         break;
       default:
-        console.log(`- ${logPurple(`${repoStatus.owner}/${repoStatus.repository}`)} - ${repoStatus.status} - ${repoStatus.message}`);
+        console.log(`- ${chalk.magenta(`${repoStatus.owner}/${repoStatus.repository}`)} - ${repoStatus.status} - ${repoStatus.message}`);
     }
   });
 };

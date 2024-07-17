@@ -1,5 +1,5 @@
+import chalk from 'chalk';
 import { parse } from "node-html-parser";
-import { logPurple, logRed } from "./utils";
 import prompt from "prompt-sync";
 import { Repository } from "../types/types";
 
@@ -31,9 +31,9 @@ export const shouldOverwriteFooter = (repositoriesOBJ: Repository, originalConte
   const hasCustomFooter = checkForExistingFooter(originalContent);
 
   if (!overwriteExistingFooter && hasCustomFooter) {
-    const answer = promptSync(`metatavu-custom-footer exists already! ${logRed("Do you want to overwrite the existing footer for")} ${logPurple(`${owner}/${repoName}`)} (y/N): `);
+    const answer = promptSync(`metatavu-custom-footer exists already! ${chalk.red("Do you want to overwrite the existing footer for")} ${chalk.magenta(`${owner}/${repoName}`)} (y/N): `);
     if (answer?.toLowerCase() !== "y") {
-      console.log("User aborted", logPurple(`${owner}/${repoName}`));
+      console.log("User aborted", chalk.magenta(`${owner}/${repoName}`));
       return false;
     }
   }
@@ -56,9 +56,9 @@ export const createOrOverwriteFooter = (content: string, footer: string, forceOv
 
   if (existingFooter && forceOverwrite) {
     existingFooter.remove();
-    console.log("Repository:", logPurple(repoName), " README was overwritten.");
+    console.log("Repository:", chalk.magenta(repoName), " README was overwritten.");
   } else if (!existingFooter) {
-    console.log("Repository:", logPurple(repoName), " README was updated.");
+    console.log("Repository:", chalk.magenta(repoName), " README was updated.");
   }
 
   // Wrapper used for detecting custom footer when ever the script is checking if footer already exists and do we want to overwrite it

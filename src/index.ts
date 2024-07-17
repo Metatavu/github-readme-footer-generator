@@ -1,8 +1,9 @@
+import chalk from 'chalk';
 import { config } from "dotenv";
 import { getOrganizationPublicRepositories } from "./utils/github-organization-utils";
 import { displaySelectedRepositories, updateReadmeAndAutoMergeRepositories as updateRepositoriesReadmesAndPullMerge } from "./utils/github-utils";
 import { footer } from "./custom-footer";
-import { isValidRepositories, logRed } from "./utils/utils";
+import { isValidRepositories } from "./utils/utils";
 import { Repository } from "./types/types";
 import { promptAndLoadFailedRepositories } from "./utils/repository-error-file-utils";
 
@@ -37,7 +38,7 @@ async function main(): Promise<void> {
     }
 
     if (!isValidRepositories(repositoriesOBJ)) {
-      console.log(logRed("Empty or invalid array of repositories. Aborting..."));
+      console.log(chalk.red("Empty or invalid array of repositories. Aborting..."));
       return;
     }
 
@@ -56,16 +57,16 @@ async function main(): Promise<void> {
  */
 function checkEnvironmentVariables(): void {
   if (!TOKEN) {
-    throw new Error(logRed("GitHub token is not defined. Please set the GITHUB_TOKEN environment variable."));
+    throw new Error(chalk.red("GitHub token is not defined. Please set the GITHUB_TOKEN environment variable."));
   }
   if (!organization) {
-    throw new Error(logRed("Organization name is not defined. Please set the ORG environment variable."));
+    throw new Error(chalk.red("Organization name is not defined. Please set the ORG environment variable."));
   }
   if (!updateBranchName) {
-    throw new Error(logRed("Name for Updater branch that is used to make pull request from is not defined. Please set the updateBranchName environment variable."));
+    throw new Error(chalk.red("Name for Updater branch that is used to make pull request from is not defined. Please set the updateBranchName environment variable."));
   }
   if (overideRepositoriesJSON) {
-    console.log(logRed("Override repositories are set in the env and they will be used.\n"));
+    console.log(chalk.red("Override repositories are set in the env and they will be used.\n"));
   }
 }
 
