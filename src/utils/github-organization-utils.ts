@@ -1,10 +1,10 @@
-import { config } from "dotenv";
+import { config } from '../config';
 import { Octokit } from "@octokit/core";
 import { Repository } from "../types/types";
 
-config();
-const TOKEN = process.env.GITHUB_TOKEN;
+const TOKEN: string = config.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
+
 
 /**
  * Fetches all public repositories belonging to the specified organization from GitHub.

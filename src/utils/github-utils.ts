@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { config } from "dotenv";
+import { config } from '../config';
 import prompt from "prompt-sync";
 import {
   deleteBranch,
@@ -21,8 +21,7 @@ import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
 import { Repository, RepositoryStatus } from "../types/types";
 import { promptAndSaveFailedRepositories } from "./repository-error-file-utils";
 
-config();
-const updateBranchName = process.env.UPDATE_BRANCH_NAME;
+const updateBranchName: string = config.UPDATE_BRANCH_NAME;
 const promptSync = prompt();
 
 const repositoryStatuses: RepositoryStatus[] = [];
