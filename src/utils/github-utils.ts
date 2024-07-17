@@ -37,18 +37,42 @@ const repositoryStatuses: RepositoryStatus[] = [];
  * @throws Throws an error if there's an issue deleting the branch.
  */
 const deleteBranchIfExists = async (repositoryOBJ: Repository, branchName: string): Promise<void> => {
-  const repoName = repositoryOBJ.repository
+  const repoName = repositoryOBJ.repository;
+
+  if (!await isExistingBranch(repositoryOBJ, branchName)) {
+    console.log("Branch", logCyan(branchName), "does not exist in repository", logPurple(repoName), "Proceeding...");
+    return;
+  }
 
   try {
-    await getBranch(repositoryOBJ, branchName);
     await deleteBranch(repositoryOBJ, branchName);
     console.log("Deleted existing branch:", logCyan(branchName), "in repository:", logPurple(repoName));
   } catch (error: any) {
+    console.error("Error deleting branch");
+    throw new Error(error);
+  }
+};
+
+/**
+ * Checks if a branch exists in the given repository.
+ *
+ * @param repositoryOBJ - An object containing the owner and repository name.
+ * @param repositoryOBJ.owner - The owner of the repository.
+ * @param repositoryOBJ.repository - The name of the repository.
+ * @param branchName - The name of the branch to check for existence.
+ * @returns A Promise that resolves to `true` if the branch exists, `false` if it does not exist.
+ * @throws Throws an error if there is an issue other than the branch not being found.
+ */
+const isExistingBranch = async (repositoryOBJ: Repository, branchName: string): Promise<boolean> => {
+  try {
+    await getBranch(repositoryOBJ, branchName);
+    return true;
+  } catch (error: any) {
     if (error.status === 404) {
-      console.log("Branch", logCyan(branchName), "does not exist in repository", logPurple(repoName), "Proceeding...");
+      return false;
     } else {
-      console.error("Error deleting branch");
-      throw new Error(error)
+      console.error(error)
+      throw new Error(error);
     }
   }
 };
@@ -130,7 +154,7 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
  * @param base64UpdatedContent - The updated content encoded in base64.
  * @returns A boolean indicating if the update was successful.
  */
-async function createAndCommit(repositoriesOBJ: Repository, branchName: string, base64UpdatedContent: string): Promise<boolean> {
+const createAndCommit = async (repositoriesOBJ: Repository, branchName: string, base64UpdatedContent: string): Promise<boolean> => {
   try {
     const blobResponse = await createBlob(repositoriesOBJ, base64UpdatedContent);
     const blobData = blobResponse.data as { sha: string };
