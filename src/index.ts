@@ -24,7 +24,7 @@ async function main(): Promise<void> {
 
     // Can be used to set repositories manually or for testing. OVERRIDE_REPOS env should be JSON object as string: '[{"owner":"value1","repository":"value2"},...]'
     // Either uses overrideRepositories if set, loads from file if found and user accepts, or fetches organization's public repositories
-    if (overrideRepositories) {
+    if (overrideRepositories && overrideRepositories.length != 0) {
       repositoriesOBJ = overrideRepositories;
     } else if ((loadedFromFile = promptAndLoadFailedRepositories())) {
       repositoriesOBJ = loadedFromFile;

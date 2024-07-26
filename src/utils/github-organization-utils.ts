@@ -1,10 +1,7 @@
-import { config } from '../config';
 import { Octokit } from "@octokit/core";
 import { Repository } from "../types/types";
 
-const TOKEN: string = config.GITHUB_TOKEN;
-const octokit = new Octokit({ auth: TOKEN });
-
+const octokit = new Octokit({ });
 
 /**
  * Fetches all public repositories belonging to the specified organization from GitHub.
