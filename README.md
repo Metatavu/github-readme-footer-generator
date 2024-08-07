@@ -46,6 +46,7 @@ Unexpected behavior may occur if the affected repository changes mid execution o
 The "GITHUB_TOKEN" should be fine grained github token with permissions to:
 - Contents **Read and Write**
 - Pull requests **Read and Write**
+- Administration **Read and Write** (used for archiving)
   
 to the repositories wanted to be updated.
 
