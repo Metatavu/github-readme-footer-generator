@@ -240,3 +240,22 @@ export const mergePullRequest = async ({ owner, repository }: Repository, pullNu
     merge_method: "merge"
   });
 };
+
+/**
+ * Archives the specified repository.
+ * 
+ * @param params - An object containing the owner and repository name.
+ * @param params.owner - The owner of the repository.
+ * @param params.repository - The name of the repository.
+ * @returns The response from the GitHub API.
+ */
+export const archiveRepository = async ({ owner, repository }: Repository): Promise<any> => {
+  return await octokit.request("PATCH /repos/{owner}/{repository}", {
+    owner,
+    repository,
+    archived: true,
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  });
+};

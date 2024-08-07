@@ -14,7 +14,8 @@ import {
   createCommit,
   updateRef,
   createPullRequest,
-  mergePullRequest
+  mergePullRequest,
+  archiveRepository
 } from "../services/github-services";
 import { encodeToBase64, decodeBase64Content } from "./utils";
 import { createOrOverwriteFooter, shouldOverwriteFooter } from "./footer-utils";
@@ -255,8 +256,19 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
     console.log("\n", i);
 
     if (!processAll) {
-      const perRepoAnswer = promptSync(chalk.red(`Do you want to process repository: ${chalk.magenta(repositoryOBJ.repository)}? (y/N): `));
-      if (perRepoAnswer?.toLowerCase() !== "y") {
+      const perRepoAnswer = promptSync(chalk.red(`Do you want to process or archive repository: ${chalk.magenta(repositoryOBJ.repository)}? (y/N/archive): `));
+      if (perRepoAnswer?.toLowerCase() === "archive") {
+        try {
+          await archiveRepository(repositoryOBJ);
+          repositoryStatuses.push({ ...repositoryOBJ, status: 'archived', message: 'Repository was archived by user' });
+          console.log(`Repository ${chalk.magenta(repositoryOBJ.repository)} was archived. Proceeding...`);
+        } catch (error) {
+          console.error(`Error archiving repository ${repositoryOBJ.repository}:`, error);
+          repositoryStatuses.push({ ...repositoryOBJ, status: 'failed', message: 'Failed to archive repository' });
+        }
+        continue;
+      }
+      else if (perRepoAnswer?.toLowerCase() !== "y") {
         repositoryStatuses.push({ ...repositoryOBJ, status: 'skipped', message: 'Changes were skipped by user' });
         console.log(`Skipping repository ${chalk.magenta(repositoryOBJ.repository)}.`);
         continue;
