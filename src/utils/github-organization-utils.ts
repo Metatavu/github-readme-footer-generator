@@ -15,6 +15,7 @@ export async function getOrganizationPublicRepositories(org: string): Promise<Re
     const response = await octokit.request("GET /orgs/{org}/repos", {
       org,
       type: "public",
+      per_page: 100, 
       headers: {
         "X-GitHub-Api-Version": "2022-11-28"
       }
