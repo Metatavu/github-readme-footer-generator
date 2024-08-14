@@ -1,6 +1,7 @@
 # Github Readme Footer Generator
 
-This script is used to generate custom footer component under public repositories of organization. The script can detect presense of previosly added footer components and user is promted to either overwrite or skip these repositories, so the script SHOULD be safe to run multiple times.
+This script is used to generate custom footer component under public repositories of organization. The script can detect presence of
+previously added footer components and user is prompted to either overwrite or skip these repositories, so the script SHOULD be safe to run multiple times.
 
 Unexpected behavior may occur if the affected repository changes mid execution of the script.
 
