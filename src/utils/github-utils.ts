@@ -94,7 +94,7 @@ const createBranchFromDevelop = async (repositoryOBJ: Repository, branchName: st
 
   try {
     const latestCommit = await getLatestCommit(repositoryOBJ, hardCodedDevelopBranch);
-    await createBranch(repositoryOBJ, branchName, latestCommit.data.object.sha);
+    await createBranch(repositoryOBJ, branchName, latestCommit.object.sha);
     console.log("Created branch:", chalk.cyan(branchName), "from the latest develop commit for repository:", chalk.magenta(repoName));
     return true;
   } catch (error: any) {
@@ -128,7 +128,7 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
     console.error(chalk.red(`README was not found in repository: ${chalk.magenta(repoName)}`))
   }
 
-  const base64fetchedReadme = fetchedReadmeResponse.data as { content: string, sha: string };
+  const base64fetchedReadme = fetchedReadmeResponse as { content: string, sha: string };
   const originalReadmeContent = decodeBase64Content(base64fetchedReadme.content);
 
   if (!shouldOverwriteFooter(repositoryOBJ, originalReadmeContent, overwriteExistingFooter)) {
@@ -159,21 +159,21 @@ const updateReadme = async (repositoryOBJ: Repository, branchName: string, foote
 const createAndCommit = async (repositoriesOBJ: Repository, branchName: string, base64UpdatedContent: string): Promise<boolean> => {
   try {
     const blobResponse = await createBlob(repositoriesOBJ, base64UpdatedContent);
-    const blobData = blobResponse.data as { sha: string };
+    const blobDataSHA = blobResponse.sha;
 
     const latestCommitResponse = await getCommitRef(repositoriesOBJ, branchName);
-    const latestCommit = latestCommitResponse.data as { object: { sha: string } };
+    const latestCommitSHA = latestCommitResponse.object.sha;
 
-    const baseTreeResponse = await getBaseTree(repositoriesOBJ, latestCommit.object.sha);
-    const baseTree = baseTreeResponse.data as { sha: string };
+    const baseTreeResponse = await getBaseTree(repositoriesOBJ, latestCommitSHA);
+    const baseTreeSHA = baseTreeResponse.sha;
 
-    const newTreeResponse = await createTree(repositoriesOBJ, baseTree.sha, blobData.sha);
-    const newTree = newTreeResponse.data as { sha: string };
+    const newTreeResponse = await createTree(repositoriesOBJ, baseTreeSHA, blobDataSHA);
+    const newTreeSHA = newTreeResponse.sha;
 
-    const newCommitResponse = await createCommit(repositoriesOBJ, "Update README", newTree.sha, [latestCommit.object.sha]);
-    const newCommit = newCommitResponse.data as { sha: string };
+    const newCommitResponse = await createCommit(repositoriesOBJ, "Update README", newTreeSHA, [latestCommitSHA]);
+    const newCommitSHA = newCommitResponse.sha;
 
-    await updateRef(repositoriesOBJ, branchName, newCommit.sha);
+    await updateRef(repositoriesOBJ, branchName, newCommitSHA);
 
     return true;
   } catch (error) {
@@ -216,11 +216,11 @@ const updateReadmeAndAutoMerge = async (repositoryOBJ: Repository, footer: strin
     }
 
     const pullRequestResponse = await createPullRequest(repositoryOBJ, "Update README via script", updateBranch, hardCodedDevelopBranch, "This PR updates the README.");
-    const pullRequest = pullRequestResponse.data as { number: number };
-    console.log("Pull request created with number:", pullRequest.number);
+    const pullRequestNumber = pullRequestResponse.number;
+    console.log("Pull request created with number:", pullRequestNumber);
 
-    await mergePullRequest(repositoryOBJ, pullRequest.number);
-    console.log("Pull request:", pullRequest.number, "was auto merged");
+    await mergePullRequest(repositoryOBJ, pullRequestNumber);
+    console.log("Pull request:", pullRequestNumber, "was auto merged");
 
     repositoryStatuses.push({ ...repositoryOBJ, status: "successful", message: "Changes were successful" });
   } catch (error: any) {

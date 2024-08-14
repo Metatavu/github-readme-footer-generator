@@ -1,8 +1,23 @@
 import { Octokit } from "@octokit/core";
+import { Endpoints } from "@octokit/types";
 import { Repository } from "../types/types";
 
 const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
+
+type GetBranchResponse = Endpoints["GET /repos/{owner}/{repo}/git/ref/{ref}"]["response"]["data"];
+type DeleteBranchResponse = Endpoints["DELETE /repos/{owner}/{repo}/git/refs/{ref}"]["response"];
+type GetLatestCommitResponse = Endpoints["GET /repos/{owner}/{repo}/git/ref/{ref}"]["response"]["data"];
+type CreateBranchResponse = Endpoints["POST /repos/{owner}/{repo}/git/refs"]["response"]["data"];
+type FetchReadmeResponse = Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]["data"];
+type CreateBlobResponse = Endpoints["POST /repos/{owner}/{repo}/git/blobs"]["response"]["data"];
+type GetCommitRefResponse = Endpoints["GET /repos/{owner}/{repo}/git/ref/{ref}"]["response"]["data"];
+type GetBaseTreeResponse = Endpoints["GET /repos/{owner}/{repo}/git/trees/{tree_sha}"]["response"]["data"];
+type CreateTreeResponse = Endpoints["POST /repos/{owner}/{repo}/git/trees"]["response"]["data"];
+type CreateCommitResponse = Endpoints["POST /repos/{owner}/{repo}/git/commits"]["response"]["data"];
+type UpdateRefResponse = Endpoints["PATCH /repos/{owner}/{repo}/git/refs/{ref}"]["response"]["data"];
+type CreatePullRequestResponse = Endpoints["POST /repos/{owner}/{repo}/pulls"]["response"]["data"];
+type MergePullRequestResponse = Endpoints["PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge"]["response"]["data"];
 
 /**
  * Gets the specified branch reference.
@@ -13,8 +28,13 @@ const octokit = new Octokit({ auth: TOKEN });
  * @param branchName - The name of the branch.
  * @returns The response from the GitHub API.
  */
-export const getBranch = async ({ owner, repository }: Repository, branchName: string): Promise<any> => {
-  return await octokit.request(`GET /repos/${owner}/${repository}/git/ref/heads/${branchName}`);
+export const getBranch = async ({ owner, repository }: Repository, branchName: string): Promise<GetBranchResponse> => {
+  const response = await octokit.request('GET /repos/{owner}/{repository}/git/ref/heads/{branchName}', {
+    owner,
+    repository,
+    branchName
+  });
+  return response.data;
 };
 
 /**
@@ -26,8 +46,14 @@ export const getBranch = async ({ owner, repository }: Repository, branchName: s
  * @param branchName - The name of the branch.
  * @returns The response from the GitHub API.
  */
-export const deleteBranch = async ({ owner, repository }: Repository, branchName: string): Promise<any> => {
-  return await octokit.request(`DELETE /repos/${owner}/${repository}/git/refs/heads/${branchName}`);
+export const deleteBranch = async ({ owner, repository }: Repository, branchName: string): Promise<DeleteBranchResponse> => {
+  const response = await octokit.request('DELETE /repos/{owner}/{repository}/git/refs/heads/{branchName}', {
+    owner,
+    repository,
+    branchName
+  });
+
+  return response.data;
 };
 
 /**
@@ -39,12 +65,13 @@ export const deleteBranch = async ({ owner, repository }: Repository, branchName
  * @param branchName - The name of the branch.
  * @returns The response from the GitHub API.
  */
-export const getLatestCommit = async ({ owner, repository }: Repository, ref: string): Promise<any> => {
-  return await octokit.request("GET /repos/{owner}/{repository}/git/ref/heads/{ref}", {
+export const getLatestCommit = async ({ owner, repository }: Repository, ref: string): Promise<GetLatestCommitResponse> => {
+  const response = await octokit.request("GET /repos/{owner}/{repository}/git/ref/heads/{ref}", {
     owner,
     repository,
     ref
   });
+  return response.data;
 };
 
 /**
@@ -57,13 +84,14 @@ export const getLatestCommit = async ({ owner, repository }: Repository, ref: st
  * @param sha - The commit SHA to create the branch from.
  * @returns The response from the GitHub API.
  */
-export const createBranch = async ({ owner, repository }: Repository, branchName: string, sha: string): Promise<any> => {
-  return await octokit.request("POST /repos/{owner}/{repository}/git/refs", {
+export const createBranch = async ({ owner, repository }: Repository, branchName: string, sha: string): Promise<CreateBranchResponse> => {
+  const response = await octokit.request("POST /repos/{owner}/{repository}/git/refs", {
     owner,
     repository,
     ref: `refs/heads/${branchName}`,
     sha
   });
+  return response.data;
 };
 
 /**
@@ -74,13 +102,14 @@ export const createBranch = async ({ owner, repository }: Repository, branchName
  * @param params.repository - The name of the repository.
  * @returns The response from the GitHub API.
  */
-export const fetchReadme = async ({ owner, repository }: Repository): Promise<any> => {
-  return await octokit.request("GET /repos/{owner}/{repository}/contents/{path}", {
+export const fetchReadme = async ({ owner, repository }: Repository): Promise<FetchReadmeResponse> => {
+  const response = await octokit.request("GET /repos/{owner}/{repository}/contents/{path}", {
     owner,
     repository,
     path: "README.md",
     ref: "develop"
   });
+  return response.data;
 };
 
 /**
@@ -92,13 +121,14 @@ export const fetchReadme = async ({ owner, repository }: Repository): Promise<an
  * @param content - The content of the blob to be created, encoded in base64.
  * @returns The response from the GitHub API.
  */
-export const createBlob = async ({ owner, repository }: Repository, content: string): Promise<any> => {
-  return await octokit.request("POST /repos/{owner}/{repository}/git/blobs", {
+export const createBlob = async ({ owner, repository }: Repository, content: string): Promise<CreateBlobResponse> => {
+  const response = await octokit.request("POST /repos/{owner}/{repository}/git/blobs", {
     owner,
     repository,
     content,
     encoding: "base64"
   });
+  return response.data;
 };
 
 /**
@@ -110,12 +140,13 @@ export const createBlob = async ({ owner, repository }: Repository, content: str
  * @param ref - The branch reference.
  * @returns The response from the GitHub API.
  */
-export const getCommitRef = async ({ owner, repository }: Repository, ref: string): Promise<any> => {
-  return await octokit.request("GET /repos/{owner}/{repository}/git/ref/{ref}", {
+export const getCommitRef = async ({ owner, repository }: Repository, ref: string): Promise<GetCommitRefResponse> => {
+  const response = await octokit.request("GET /repos/{owner}/{repository}/git/ref/{ref}", {
     owner,
     repository,
     ref: `heads/${ref}`
   });
+  return response.data;
 };
 
 /**
@@ -127,12 +158,13 @@ export const getCommitRef = async ({ owner, repository }: Repository, ref: strin
  * @param tree_sha - The commit SHA.
  * @returns The response from the GitHub API.
  */
-export const getBaseTree = async ({ owner, repository }: Repository, tree_sha: string): Promise<any> => {
-  return await octokit.request("GET /repos/{owner}/{repository}/git/trees/{tree_sha}", {
+export const getBaseTree = async ({ owner, repository }: Repository, tree_sha: string): Promise<GetBaseTreeResponse> => {
+  const response = await octokit.request("GET /repos/{owner}/{repository}/git/trees/{tree_sha}", {
     owner,
     repository,
     tree_sha
   });
+  return response.data;
 };
 
 /**
@@ -146,8 +178,8 @@ export const getBaseTree = async ({ owner, repository }: Repository, tree_sha: s
  * @param sha - The SHA for the new tree.
  * @returns The response from the GitHub API.
  */
-export const createTree = async ({ owner, repository }: Repository, base_tree: string, sha: string): Promise<any> => {
-  return await octokit.request("POST /repos/{owner}/{repository}/git/trees", {
+export const createTree = async ({ owner, repository }: Repository, base_tree: string, sha: string): Promise<CreateTreeResponse> => {
+  const response = await octokit.request("POST /repos/{owner}/{repository}/git/trees", {
     owner,
     repository,
     base_tree,
@@ -158,6 +190,7 @@ export const createTree = async ({ owner, repository }: Repository, base_tree: s
       sha
     }]
   });
+  return response.data;
 };
 
 /**
@@ -171,14 +204,15 @@ export const createTree = async ({ owner, repository }: Repository, base_tree: s
  * @param parents - The parent SHAs.
  * @returns The response from the GitHub API.
  */
-export const createCommit = async ({ owner, repository }: Repository, message: string, tree: string, parents: string[]): Promise<any> => {
-  return await octokit.request("POST /repos/{owner}/{repository}/git/commits", {
+export const createCommit = async ({ owner, repository }: Repository, message: string, tree: string, parents: string[]): Promise<CreateCommitResponse> => {
+  const response = await octokit.request("POST /repos/{owner}/{repository}/git/commits", {
     owner,
     repository,
     message,
     tree,
     parents
   });
+  return response.data;
 };
 
 /**
@@ -191,13 +225,14 @@ export const createCommit = async ({ owner, repository }: Repository, message: s
  * @param sha - The SHA to point the reference to.
  * @returns The response from the GitHub API.
  */
-export const updateRef = async ({ owner, repository }: Repository, ref: string, sha: string): Promise<any> => {
-  return await octokit.request("PATCH /repos/{owner}/{repository}/git/refs/{ref}", {
+export const updateRef = async ({ owner, repository }: Repository, ref: string, sha: string): Promise<UpdateRefResponse> => {
+  const response = await octokit.request("PATCH /repos/{owner}/{repository}/git/refs/{ref}", {
     owner,
     repository,
     ref: `heads/${ref}`,
     sha
   });
+  return response.data;
 };
 
 /**
@@ -212,8 +247,8 @@ export const updateRef = async ({ owner, repository }: Repository, ref: string, 
  * @param body - The body text of the pull request.
  * @returns The response from the GitHub API.
  */
-export const createPullRequest = async ({ owner, repository }: Repository, title: string, head: string, base: string, body: string): Promise<any> => {
-  return await octokit.request("POST /repos/{owner}/{repository}/pulls", {
+export const createPullRequest = async ({ owner, repository }: Repository, title: string, head: string, base: string, body: string): Promise<CreatePullRequestResponse> => {
+  const response = await octokit.request("POST /repos/{owner}/{repository}/pulls", {
     owner,
     repository,
     title,
@@ -221,6 +256,7 @@ export const createPullRequest = async ({ owner, repository }: Repository, title
     base,
     body
   });
+  return response.data;
 };
 
 /**
@@ -232,13 +268,14 @@ export const createPullRequest = async ({ owner, repository }: Repository, title
  * @param pullNumber - The number of the pull request.
  * @returns The response from the GitHub API.
  */
-export const mergePullRequest = async ({ owner, repository }: Repository, pullNumber: number): Promise<any> => {
-  return await octokit.request("PUT /repos/{owner}/{repository}/pulls/{pull_number}/merge", {
+export const mergePullRequest = async ({ owner, repository }: Repository, pullNumber: number): Promise<MergePullRequestResponse> => {
+  const response = await octokit.request("PUT /repos/{owner}/{repository}/pulls/{pull_number}/merge", {
     owner,
     repository,
     pull_number: pullNumber,
     merge_method: "merge"
   });
+  return response.data;
 };
 
 /**

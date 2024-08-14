@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { parse } from "node-html-parser";
+import { parse, HTMLElement } from "node-html-parser";
 import prompt from "prompt-sync";
 import { Repository } from "../types/types";
 
@@ -12,7 +12,7 @@ const promptSync = prompt();
  * @returns Whether a custom footer is present in the README content.
  */
 export const checkForExistingFooter = (content: string) => {
-  const dom = parse(content);
+  const dom: HTMLElement  = parse(content);
   const existingFooter = dom.querySelector("#metatavu-custom-footer");
   return !!existingFooter;
 };
@@ -51,8 +51,8 @@ export const shouldOverwriteFooter = (repositoriesOBJ: Repository, originalConte
  * @returns The updated content with the new footer.
  */
 export const createOrOverwriteFooter = (content: string, footer: string, forceOverwrite: boolean, repoName: string): string => {
-  const dom = parse(content);
-  const existingFooter = dom.querySelector("#metatavu-custom-footer");
+  const dom: HTMLElement  = parse(content);
+  const existingFooter: HTMLElement | null  = dom.querySelector("#metatavu-custom-footer");
 
   if (existingFooter && forceOverwrite) {
     existingFooter.remove();
@@ -62,7 +62,7 @@ export const createOrOverwriteFooter = (content: string, footer: string, forceOv
   }
 
   // Wrapper used for detecting custom footer when ever the script is checking if footer already exists and do we want to overwrite it
-  const footerWrapper = parse(`<div id="metatavu-custom-footer">${footer}</div>`);
+  const footerWrapper: HTMLElement = parse(`<div id="metatavu-custom-footer">${footer}</div>`);
   dom.appendChild(footerWrapper);
 
   return dom.toString();
