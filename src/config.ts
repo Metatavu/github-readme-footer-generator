@@ -1,6 +1,6 @@
-import { config as dotenvConfig } from 'dotenv';
-import { cleanEnv, str, json } from 'envalid';
-import { Repository } from './types/types';
+import { config as dotenvConfig } from "dotenv";
+import { cleanEnv, str, json } from "envalid";
+import { Repository } from "./types/types";
 
 dotenvConfig();
 

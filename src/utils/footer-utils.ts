@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 import { parse } from "node-html-parser";
 import prompt from "prompt-sync";
 import { Repository } from "../types/types";
@@ -11,7 +11,7 @@ const promptSync = prompt();
  * @param content - The content of the README file.
  * @returns Whether a custom footer is present in the README content.
  */
-export const checkForExistingFooter = (content: string): boolean => {
+export const checkForExistingFooter = (content: string) => {
   const dom = parse(content);
   const existingFooter = dom.querySelector("#metatavu-custom-footer");
   return !!existingFooter;
@@ -25,7 +25,7 @@ export const checkForExistingFooter = (content: string): boolean => {
  * @param overwriteExistingFooter - A flag indicating if the existing footer should be overwritten.
  * @returns A boolean indicating if the footer should be overwritten.
  */
-export const shouldOverwriteFooter = (repositoriesOBJ: Repository, originalContent: string, overwriteExistingFooter: boolean): boolean => {
+export const shouldOverwriteFooter = (repositoriesOBJ: Repository, originalContent: string, overwriteExistingFooter: boolean) => {
   const owner = repositoriesOBJ.owner;
   const repoName = repositoriesOBJ.repository;
   const hasCustomFooter = checkForExistingFooter(originalContent);

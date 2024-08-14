@@ -1,7 +1,7 @@
-import fs from 'fs';
-import chalk from 'chalk';
+import fs from "fs";
+import chalk from "chalk";
 import prompt from "prompt-sync";
-import { Repository, RepositoryStatus } from '../types/types';
+import { Repository, RepositoryStatus } from "../types/types";
 
 const promptSync = prompt();
 
@@ -12,10 +12,10 @@ const promptSync = prompt();
  * @returns void
  */
 export const saveFailedRepositoriesToFile = (failedRepositories: Repository[]): void => {
-  const filePath = 'failed-repositories.json';
+  const filePath = "failed-repositories.json";
   const jsonContent = JSON.stringify(failedRepositories, null, 2);
 
-  fs.writeFileSync(filePath, jsonContent, 'utf8');
+  fs.writeFileSync(filePath, jsonContent, "utf8");
   console.log(`Failed repositories have been saved to ${filePath}`);
 };
 
@@ -27,7 +27,7 @@ export const saveFailedRepositoriesToFile = (failedRepositories: Repository[]): 
  */
 export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositoryStatus[]): void => {
   const failedRepositories = repositoryStatuses
-    .filter(repoStatus => repoStatus.status === 'failed')
+    .filter(repoStatus => repoStatus.status === "failed")
     .map(({ owner, repository }) => ({ owner, repository }));
 
   if (failedRepositories.length > 0) {
@@ -52,11 +52,11 @@ export const promptAndSaveFailedRepositories = (repositoryStatuses: RepositorySt
  * @returns An array of repositories if the file is loaded, otherwise null.
  */
 export const promptAndLoadFailedRepositories = (): Repository[] | null => {
-  const filePath = 'failed-repositories.json';
+  const filePath = "failed-repositories.json";
   if (fs.existsSync(filePath)) {
     const loadAnswer = promptSync(chalk.red("Found failed-repositories.json Do you want to load the repositories to be used from this file? (y/N): "));
-    if (loadAnswer.toLowerCase() === 'y') {
-      const fileContent = fs.readFileSync(filePath, 'utf8');
+    if (loadAnswer.toLowerCase() === "y") {
+      const fileContent = fs.readFileSync(filePath, "utf8");
       return JSON.parse(fileContent);
     }
   }
