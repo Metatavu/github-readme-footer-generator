@@ -51,6 +51,13 @@ The "GITHUB_TOKEN" should be fine grained github token with permissions to:
   
 to the repositories wanted to be updated.
 
+### Custom footer to configure
+To configure the custom footer that the script will insert into the processed repositories, edit the file located at:
+```
+  src/custom-footer.ts
+```
+Update this file with the desired HTML content for the footer.
+
 ## Scripts workflow
 
 ### 1. Initial settings
