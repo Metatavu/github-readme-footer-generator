@@ -296,3 +296,10 @@ export const archiveRepository = async ({ owner, repository }: Repository): Prom
     }
   });
 };
+
+export const hasFooterInReadme = async (repo: Repository): Promise<Repository | null> => {
+  const { owner, repository } = repo;
+  const readme = await fetchReadme({ owner, repository });
+  const content = Buffer.from((readme as any).content, 'base64').toString('utf-8');
+  return !content.includes("metatavu-custom-footer") ? repo : null;
+}
