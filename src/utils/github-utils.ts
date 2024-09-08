@@ -241,7 +241,11 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
   console.log("This script will add custom footers to ALL the specified repositories. It can also overwrite existing footers if desired.");
   console.log(chalk.red("If you do not want to automatically update ALL of the repositories selected, YOU MUST select 'n' in the following prompt."));
   
-  const processAllAnswer = promptSync(chalk.red("Do you want to add custom footer to ALL found repositories? (otherwise will be asked individually) (y/N/l for listing only repositories without a footer): "));
+  const processAllAnswer = promptSync(chalk.red("Do you want to add custom footer to ALL found repositories? (otherwise will be asked individually) (y/N/l for listing only repositories without a footer/q to quit): "));
+  if (processAllAnswer?.toLowerCase() === "q") {
+    console.log('Quitting the script...');
+    process.exit();
+  }
   const processAll = processAllAnswer?.toLowerCase() === "y";
   const listOnlyWithoutFooter = processAllAnswer?.toLowerCase() === "l";
 
@@ -262,13 +266,21 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
       console.log(`${index + 1}. ${repo.owner}/${repo.repository}`);
     });
 
-    const addFooterAnswer = promptSync(chalk.red("Do you want to add a footer to these repositories? (y/N): "));
-    if (addFooterAnswer?.toLowerCase() !== "y") {
-      return;
-    }
+  const addFooterAnswer = promptSync(chalk.red("Do you want to add a footer to these repositories? (y/N/q to quit): "));
+  if (addFooterAnswer?.toLowerCase() === "q") {
+    console.log('Quitting the script...');
+    process.exit();
+  }
+  if (addFooterAnswer?.toLowerCase() !== "y") {
+    return;
+  }
   }
 
-  const overwriteAnswer = promptSync(chalk.red("If found do you want to automatically overwrite ALL existing metatavu-custom-footers (otherwise will be asked individually) (y/N): "));
+  const overwriteAnswer = promptSync(chalk.red("If found do you want to automatically overwrite ALL existing metatavu-custom-footers (otherwise will be asked individually) (y/N/q): "));
+  if (overwriteAnswer?.toLowerCase() === "q") {
+    console.log('Quitting the script...');
+    process.exit();
+  }
   const overwriteAll = overwriteAnswer?.toLowerCase() === "y";
   if (overwriteAll) {
     console.log("All metatavu-custom-footers will be overwritten.");
@@ -279,7 +291,11 @@ export const updateReadmeAndAutoMergeRepositories = async (repositoriesOBJ: Repo
     console.log("\n", i);
 
     if (!processAll) {
-      const perRepoAnswer = promptSync(chalk.red(`Do you want to process or archive repository: ${chalk.magenta(repositoryOBJ.repository)}? (y/N/archive): `));
+      const perRepoAnswer = promptSync(chalk.red(`Do you want to process or archive repository: ${chalk.magenta(repositoryOBJ.repository)}? (y/N/archive/q to quit): `));
+      if (perRepoAnswer?.toLowerCase() === "q") {
+        console.log('Quitting the script...');
+        process.exit();
+      }
       if (perRepoAnswer?.toLowerCase() === "archive") {
         try {
           await archiveRepository(repositoryOBJ);

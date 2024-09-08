@@ -31,7 +31,11 @@ export const shouldOverwriteFooter = (repositoriesOBJ: Repository, originalConte
   const hasCustomFooter = checkForExistingFooter(originalContent);
 
   if (!overwriteExistingFooter && hasCustomFooter) {
-    const answer = promptSync(`metatavu-custom-footer exists already! ${chalk.red("Do you want to overwrite the existing footer for")} ${chalk.magenta(`${owner}/${repoName}`)} (y/N): `);
+    const answer = promptSync(`metatavu-custom-footer exists already! ${chalk.red("Do you want to overwrite the existing footer for")} ${chalk.magenta(`${owner}/${repoName}`)} (y/N/q): `);
+    if (answer?.toLowerCase() === "q") {
+      console.log("User aborted", chalk.magenta(`${owner}/${repoName}`));
+      process.exit(0);
+    }
     if (answer?.toLowerCase() !== "y") {
       console.log("User aborted", chalk.magenta(`${owner}/${repoName}`));
       return false;
