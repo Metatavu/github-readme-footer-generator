@@ -43,12 +43,13 @@ Unexpected behavior may occur if the affected repository changes mid execution o
   
 \* = necessary 
 
+### Token "Resource owner" should be for the org, not for the user.
 ### Token
 The "GITHUB_TOKEN" should be fine grained github token with permissions to:
 - Contents **Read and Write**
 - Pull requests **Read and Write**
 - Administration **Read and Write** (used for archiving)
-  
+
 to the repositories wanted to be updated.
 
 ### Custom footer to configure
