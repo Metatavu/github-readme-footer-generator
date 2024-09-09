@@ -13,3 +13,10 @@ export interface RepositoryStatus extends Repository {
   status: string;
   message: string;
 }
+
+/**
+ * Type describing the content of a README file.
+ */
+export type Readme = {
+  content: string;
+};
