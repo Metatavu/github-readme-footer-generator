@@ -1,6 +1,7 @@
 import { Octokit } from "@octokit/core";
 import { Endpoints } from "@octokit/types";
 import { Repository } from "../types/types";
+import { Readme } from "../types/types";
 
 const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
@@ -296,3 +297,18 @@ export const archiveRepository = async ({ owner, repository }: Repository): Prom
     }
   });
 };
+
+/**
+ * Checks if the repository has a footer in the README file.
+ * 
+ * @param repo - The repository to check.
+ * @returns The repository if it has a footer in the README file, or null otherwise.
+ */
+
+export const hasFooterInReadme = async (repo: Repository): Promise<Repository | undefined> => {
+  const { owner, repository } = repo;
+  const readme = await fetchReadme({ owner, repository });
+  const content = Buffer.from((readme as Readme).content, "base64").toString("utf-8");
+  
+  return content.includes("metatavu-custom-footer") ? undefined : repo;
+}
